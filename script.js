@@ -8,22 +8,23 @@ document.addEventListener("DOMContentLoaded", () => {
   // MOBILE MENU
   // ----------------------------------------
 
-  const menuButton = document.querySelector(".menu-toggle");
-  const navMenu = document.querySelector(".nav-links");
+  const menuButton = document.querySelector("#menuButton");
+  const mobileMenu = document.querySelector("#mobileMenu");
 
-  if (menuButton && navMenu) {
+  if (menuButton && mobileMenu) {
+
     menuButton.addEventListener("click", () => {
-      navMenu.classList.toggle("active");
+      mobileMenu.classList.toggle("active");
       menuButton.classList.toggle("active");
     });
 
-    // Close menu after clicking a link
-    navMenu.querySelectorAll("a").forEach(link => {
+    mobileMenu.querySelectorAll("a").forEach(link => {
       link.addEventListener("click", () => {
-        navMenu.classList.remove("active");
+        mobileMenu.classList.remove("active");
         menuButton.classList.remove("active");
       });
     });
+
   }
 
 
@@ -32,6 +33,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // ----------------------------------------
 
   document.querySelectorAll('a[href^="#"]').forEach(link => {
+
     link.addEventListener("click", function (e) {
 
       const targetId = this.getAttribute("href");
@@ -41,14 +43,18 @@ document.addEventListener("DOMContentLoaded", () => {
       const target = document.querySelector(targetId);
 
       if (target) {
+
         e.preventDefault();
 
         target.scrollIntoView({
           behavior: "smooth",
           block: "start"
         });
+
       }
+
     });
+
   });
 
 
@@ -56,7 +62,8 @@ document.addEventListener("DOMContentLoaded", () => {
   // CURRENT YEAR
   // ----------------------------------------
 
-  const yearElements = document.querySelectorAll(".current-year");
+  const yearElements =
+    document.querySelectorAll(".current-year");
 
   yearElements.forEach(element => {
     element.textContent = new Date().getFullYear();
@@ -79,8 +86,11 @@ document.addEventListener("DOMContentLoaded", () => {
         entries.forEach(entry => {
 
           if (entry.isIntersecting) {
+
             entry.target.classList.add("visible");
+
             observer.unobserve(entry.target);
+
           }
 
         });
@@ -105,16 +115,31 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
   // ----------------------------------------
-  // CONTACT FORM
+  // STARKIVE ENQUIRY FORM
   // ----------------------------------------
 
-  const contactForm = document.querySelector("#contact-form");
+  const enquiryForm =
+    document.querySelector("#enquiryForm");
 
-  if (contactForm) {
+  const submitButton =
+    document.querySelector("#submitButton");
 
-    contactForm.addEventListener("submit", function (e) {
+  const formStatus =
+    document.querySelector("#formStatus");
+
+  const whatsappAfter =
+    document.querySelector("#whatsappAfter");
+
+  const whatsappEnquiry =
+    document.querySelector("#whatsappEnquiry");
+
+
+  if (enquiryForm) {
+
+    enquiryForm.addEventListener("submit", async function (e) {
 
       e.preventDefault();
+
 
       const name =
         document.querySelector("#name")?.value.trim() || "";
@@ -125,31 +150,160 @@ document.addEventListener("DOMContentLoaded", () => {
       const phone =
         document.querySelector("#phone")?.value.trim() || "";
 
+      const service =
+        document.querySelector("#service")?.value || "";
+
       const message =
         document.querySelector("#message")?.value.trim() || "";
 
 
-      if (!name || !email || !message) {
-        alert("Please fill in all required fields.");
+      // Required fields
+
+      if (!name || !email || !service || !message) {
+
+        formStatus.textContent =
+          "Please fill in all required fields.";
+
+        formStatus.className =
+          "form-status error";
+
         return;
+
       }
 
 
-      // WhatsApp message
-      const whatsappMessage =
-        `Hello STARKIVE,%0A%0A` +
-        `Name: ${encodeURIComponent(name)}%0A` +
-        `Email: ${encodeURIComponent(email)}%0A` +
-        `Phone: ${encodeURIComponent(phone)}%0A%0A` +
-        `Message:%0A${encodeURIComponent(message)}`;
+      // Loading state
+
+      submitButton.disabled = true;
+
+      submitButton.textContent =
+        "Sending...";
+
+      formStatus.textContent = "";
+
+      formStatus.className =
+        "form-status";
+
+      whatsappAfter.style.display =
+        "none";
 
 
-      const whatsappURL =
-        `https://wa.me/message/YIGOKSBIKPZDF1?text=${whatsappMessage}`;
+      try {
+
+        /*
+          LOCAL BACKEND TEST
+
+          server.js route:
+          POST /api/inquiry
+        */
+
+        const response = await fetch(
+          "http://localhost:5000/api/inquiry",
+          {
+            method: "POST",
+
+            headers: {
+              "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify({
+
+              name: name,
+
+              email: email,
+
+              phone: phone,
+
+              service: service,
+
+              message: message
+
+            })
+          }
+        );
 
 
-      // Open WhatsApp
-      window.open(whatsappURL, "_blank");
+        const result =
+          await response.json();
+
+
+        if (!response.ok || !result.success) {
+
+          throw new Error(
+            result.message ||
+            "Failed to send enquiry."
+          );
+
+        }
+
+
+        // Success
+
+        formStatus.textContent =
+          "✅ Enquiry sent successfully! We will contact you soon.";
+
+        formStatus.className =
+          "form-status success";
+
+
+        submitButton.textContent =
+          "Enquiry Sent ✓";
+
+
+        // --------------------------------
+        // WHATSAPP MESSAGE
+        // --------------------------------
+
+        const whatsappMessage =
+`Hello STARKIVE,
+
+I just submitted an enquiry through your website.
+
+Name: ${name}
+Email: ${email}
+Phone: ${phone || "Not provided"}
+Service: ${service}
+
+Message:
+${message}`;
+
+
+        whatsappEnquiry.href =
+          "https://wa.me/message/YIGOKSBIKPZDF1?text=" +
+          encodeURIComponent(whatsappMessage);
+
+
+        whatsappAfter.style.display =
+          "block";
+
+
+        // Clear form
+
+        enquiryForm.reset();
+
+
+      } catch (error) {
+
+        console.error(
+          "STARKIVE Enquiry Error:",
+          error
+        );
+
+
+        formStatus.textContent =
+          "❌ Unable to send enquiry right now. Please try again.";
+
+        formStatus.className =
+          "form-status error";
+
+
+        submitButton.disabled =
+          false;
+
+        submitButton.textContent =
+          "Send Enquiry →";
+
+      }
 
     });
 
@@ -160,16 +314,21 @@ document.addEventListener("DOMContentLoaded", () => {
   // HEADER SHADOW ON SCROLL
   // ----------------------------------------
 
-  const header = document.querySelector(".header");
+  const header =
+    document.querySelector(".header");
 
   if (header) {
 
     window.addEventListener("scroll", () => {
 
       if (window.scrollY > 30) {
+
         header.classList.add("scrolled");
+
       } else {
+
         header.classList.remove("scrolled");
+
       }
 
     });
@@ -181,16 +340,21 @@ document.addEventListener("DOMContentLoaded", () => {
   // BACK TO TOP
   // ----------------------------------------
 
-  const backToTop = document.querySelector(".back-to-top");
+  const backToTop =
+    document.querySelector(".back-to-top");
 
   if (backToTop) {
 
     window.addEventListener("scroll", () => {
 
       if (window.scrollY > 500) {
+
         backToTop.classList.add("show");
+
       } else {
+
         backToTop.classList.remove("show");
+
       }
 
     });
@@ -219,7 +383,9 @@ document.addEventListener("DOMContentLoaded", () => {
       this.classList.add("clicked");
 
       setTimeout(() => {
+
         this.classList.remove("clicked");
+
       }, 250);
 
     });
