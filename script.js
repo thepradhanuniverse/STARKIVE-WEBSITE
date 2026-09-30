@@ -66,7 +66,7 @@ if (enquiryForm) {
     try {
 
       const response = await fetch(
-        "http://localhost:5000/api/inquiry",
+        "https://starkive-backend.onrender.com/api/inquiry",
         {
           method: "POST",
 
