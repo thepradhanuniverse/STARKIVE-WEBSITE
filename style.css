@@ -132,6 +132,9 @@ button {
   gap: 30px;
 }
 
+
+/* ================= LOGO ================= */
+
 .logo,
 .footer-logo {
   display: flex;
@@ -141,14 +144,19 @@ button {
   font-weight: 700;
   font-size: 23px;
   letter-spacing: -1px;
+  flex-shrink: 0;
 }
 
+/* FIXED: Actual logo.png is a square icon */
 .logo img,
 .footer-logo img {
   width: 34px;
   height: 34px;
-  object-fit: cover;
-  border-radius: 50%;
+  object-fit: contain;
+  object-position: center;
+  border-radius: 8px;
+  background: #050608;
+  flex-shrink: 0;
 }
 
 .logo span span,
@@ -393,11 +401,15 @@ button {
     inset 0 0 60px rgba(0,119,255,0.04);
 }
 
+/* FIXED: No crop / no forced circle */
 .visual-card img {
   width: 180px;
   height: 180px;
-  object-fit: cover;
-  border-radius: 50%;
+  object-fit: contain;
+  object-position: center;
+  border-radius: 12px;
+  background: #050608;
+  flex-shrink: 0;
 }
 
 .visual-text {
@@ -673,7 +685,10 @@ button {
 .work-logo img {
   width: 90px;
   height: 90px;
-  border-radius: 50%;
+  object-fit: contain;
+  object-position: center;
+  border-radius: 10px;
+  background: #050608;
   margin: 0 auto 25px;
 }
 
